@@ -13,7 +13,7 @@ import (
 	"context"
 )
 
-core, err := Lagrange.NewCore("8.141.1.249:8081")
+core, err := Lagrange.NewCore("127.0.0.1:8080")
 	if err != nil {
 		return
 	}
