@@ -19,11 +19,14 @@ type EventCallbackFunc func(client *websocket.Conn, event IEvent)
 type IEvent interface {
 	ICommonMsg
 	ParseGroupMsg() IGroupMsg
+	ParsePrivateMsg() IPrivateMsg
 }
 
 type IPrivateMsg interface {
 	ICommonMsg
 	IPrivateSender
+	ParseTextMsg() IMessage
+	GetUserID() int64
 }
 
 type IGroupMsg interface {
@@ -150,6 +153,10 @@ IEvent 部分
 */
 
 func (e *EventStruct) ParseGroupMsg() IGroupMsg {
+	return e
+}
+
+func (e *EventStruct) ParsePrivateMsg() IPrivateMsg {
 	return e
 }
 

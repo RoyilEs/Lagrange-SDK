@@ -17,7 +17,7 @@ core, err := Lagrange.NewCore("127.0.0.1:8080")
 	if err != nil {
 		return
 	}
-	core.On(events.EventGroupMsg, func(ctx context.Context, event events.IEvent) {
+	core.On(events.EventGroupMsg, func(client *websocket.Conn, event events.IEvent) {
 		groupMsg := event.ParseGroupMsg()
 		if groupMsg.ParseTextMsg().GetText()[0] == "test" {
 			apiBuilder.New().SendGroupMsg().ToGroupID(groupMsg.GetGroupID()).TextMsg("测试").Do()

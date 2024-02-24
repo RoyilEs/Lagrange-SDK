@@ -6,10 +6,15 @@ import (
 
 type ISendGroupMsg interface {
 	IMsg
+	ToGroupID(group int64) IMsg
+}
+
+type ISendPrivateMsg interface {
+	IMsg
+	ToPrivateID(user int64) IMsg
 }
 
 type IMsg interface {
-	ToGroupID(group int64) IMsg
 	TextMsg(text string) IMsg
 	ImgMsg(img string) IMsg
 	DoApi
@@ -23,6 +28,17 @@ func (r *Request) SendGroupMsg() ISendGroupMsg {
 
 func (r *Request) ToGroupID(group int64) IMsg {
 	r.Params.GroupID = group
+	return r
+}
+
+func (r *Request) SendPrivateMsg() ISendPrivateMsg {
+	cmd := "send_private_msg"
+	r.Action = cmd
+	return r
+}
+
+func (r *Request) ToPrivateID(user int64) IMsg {
+	r.Params.UserID = user
 	return r
 }
 
