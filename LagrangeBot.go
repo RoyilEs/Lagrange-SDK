@@ -21,7 +21,7 @@ type Core struct {
 	events                    map[events.EventName][]events.EventCallbackFunc
 	lock                      sync.RWMutex
 	err                       error
-	client                    *websocket.Conn
+	Client                    *websocket.Conn
 	handlePanic               func(any)
 	retryCount, MaxRetryCount int
 	autoSignToken             bool
@@ -57,8 +57,8 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 		case <-interrupt:
 			log.Info("用户关闭程序")
 			cancel()
-			if c.client != nil {
-				c.client.Close()
+			if c.Client != nil {
+				c.Client.Close()
 			}
 		case <-ctx.Done():
 		}
@@ -85,13 +85,13 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 		}
 	}()
 	var err error
-	c.client, _, err = websocket.DefaultDialer.DialContext(ctx, "ws://"+c.ApiUrl+"/ws", nil)
+	c.Client, _, err = websocket.DefaultDialer.DialContext(ctx, "ws://"+c.ApiUrl+"/ws", nil)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		if c.client != nil {
-			c.client.Close()
+		if c.Client != nil {
+			c.Client.Close()
 		}
 	}()
 	c.retryCount = 0
@@ -99,7 +99,7 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 	go func() {
 		defer close(c.done)
 		for {
-			_, message, err := c.client.ReadMessage()
+			_, message, err := c.Client.ReadMessage()
 			select {
 			case <-ctx.Done():
 				c.err = errors.ErrorContextCanceled
@@ -119,7 +119,7 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 
 			var callbacks []events.EventCallbackFunc
 			c.lock.RLock()
-			callbacks = c.events[events.EventName(event.GetMessageType())]
+			callbacks = c.events[event.GetMessageType()]
 			c.lock.RUnlock()
 			go func() {
 				defer func() {
@@ -132,7 +132,7 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 					}
 				}()
 				for _, v := range callbacks {
-					v(ctx, event)
+					v(c.Client, event)
 				}
 			}()
 		}

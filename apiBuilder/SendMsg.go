@@ -1,6 +1,8 @@
 package apiBuilder
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ISendGroupMsg interface {
 	IMsg

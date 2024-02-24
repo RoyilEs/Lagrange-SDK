@@ -2,35 +2,36 @@ package apiBuilder
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 )
 
 type DoApi interface {
-	Do() error
+	Do(client *websocket.Conn) error
 }
 
 type Request struct {
 	Action string `json:"action"`
 	Params struct {
-		GroupID int64  `json:"group_id"`
-		UserID  int64  `json:"user_id"`
+		GroupID int64  `json:"group_id,omitempty"`
+		UserID  int64  `json:"user_id,omitempty"`
 		Message string `json:"message"`
-	}
+	} `json:"params"`
 }
 
-func (r *Request) BuildStringBody() ([]byte, error) {
+func (r *Request) BuildBody() ([]byte, error) {
 	body, err := json.Marshal(r)
+	fmt.Println(string(body))
 	return body, err
 }
 
-func (r *Request) Do() error {
-	body, err := r.BuildStringBody()
+func (r *Request) Do(client *websocket.Conn) error {
+	body, err := r.BuildBody()
 	if err != nil {
 		return err
 	}
-	var conn *websocket.Conn
 	// 发送 JSON 消息
-	err = conn.WriteMessage(websocket.TextMessage, body)
+	err = client.WriteMessage(websocket.TextMessage, body)
 	if err != nil {
 		return err
 	}

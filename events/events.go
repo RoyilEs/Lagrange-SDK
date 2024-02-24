@@ -1,8 +1,8 @@
 package events
 
 import (
-	"context"
 	"encoding/json"
+	"github.com/gorilla/websocket"
 )
 
 //go:generate easyjson events.go
@@ -14,7 +14,7 @@ const (
 	EventPrivateMsg EventName = "private"
 )
 
-type EventCallbackFunc func(ctx context.Context, event IEvent)
+type EventCallbackFunc func(client *websocket.Conn, event IEvent)
 
 type IEvent interface {
 	ICommonMsg
