@@ -1,5 +1,7 @@
 package apiBuilder
 
+import "fmt"
+
 type ISendGroupMsg interface {
 	IMsg
 }
@@ -7,6 +9,7 @@ type ISendGroupMsg interface {
 type IMsg interface {
 	ToGroupID(group int64) IMsg
 	TextMsg(text string) IMsg
+	ImgMsg(img string) IMsg
 	DoApi
 }
 
@@ -23,5 +26,10 @@ func (r *Request) ToGroupID(group int64) IMsg {
 
 func (r *Request) TextMsg(text string) IMsg {
 	r.Params.Message = text
+	return r
+}
+
+func (r *Request) ImgMsg(img string) IMsg {
+	r.Params.Message = fmt.Sprintf("[CQ:image,file=%s]", img)
 	return r
 }
