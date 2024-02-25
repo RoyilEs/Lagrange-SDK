@@ -40,6 +40,8 @@ type IEventMessage interface {
 }
 
 type IEventNotice interface {
+	ParseSet() ISet
+	ParseUnSet() IUnSet
 }
 
 func New(data []byte) (*Event, []byte, string, error) {
@@ -56,11 +58,11 @@ func New(data []byte) (*Event, []byte, string, error) {
 		ok = event.GetMessageType()
 	case string(NOTICE):
 		err = json.Unmarshal(data, &event.EventNoticeStruct)
-		ok = event.GetNoticeSubType()
+		ok = event.EventNoticeStruct.GetSubType()
 	case string(REQUEST):
-		ok = event.GetNoticeSubType()
+		ok = event.EventNoticeStruct.GetSubType()
 	case string(METAEVENT):
-		ok = event.GetNoticeSubType()
+		ok = event.EventNoticeStruct.GetSubType()
 	}
 	return event, data, ok, nil
 }
@@ -78,12 +80,28 @@ type EventStruct struct {
 	PostType string `json:"post_type"`
 }
 
+/**
+IEventMessage
+*/
+
 func (e *Event) ParseGroupMsg() IGroupMsg {
 	return e
 }
 
 func (e *Event) ParsePrivateMsg() IPrivateMsg {
 	return e
+}
+
+/**
+IEventNotice
+*/
+
+func (e *Event) ParseSet() ISet {
+	return &e.EventNoticeStruct
+}
+
+func (e *Event) ParseUnSet() IUnSet {
+	return &e.EventNoticeStruct
 }
 
 func (e *EventStruct) GetTime() int64 {

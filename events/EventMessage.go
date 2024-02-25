@@ -84,11 +84,6 @@ func (e *Event) GetMessageSubType() string {
 func (e *Event) GetMessageType() string {
 	return e.EventMessageStruct.MessageType
 }
-
-func (e *Event) GetNoticeSubType() string {
-	return e.EventMessageStruct.SubType
-}
-
 func (e *Event) GetMessageID() int64 {
 	return e.EventMessageStruct.MessageID
 }
