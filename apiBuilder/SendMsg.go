@@ -17,6 +17,7 @@ type ISendPrivateMsg interface {
 type IMsg interface {
 	TextMsg(text string) IMsg
 	ImgMsg(img string) IMsg
+	Face(ID int) IMsg
 	DoApi
 }
 
@@ -43,11 +44,16 @@ func (r *Request) ToPrivateID(user int64) IMsg {
 }
 
 func (r *Request) TextMsg(text string) IMsg {
-	r.Params.Message = text
+	r.Params.Message += text
+	return r
+}
+
+func (r *Request) Face(ID int) IMsg {
+	r.Params.Message += fmt.Sprintf("[CQ:face,id=%d]", ID)
 	return r
 }
 
 func (r *Request) ImgMsg(img string) IMsg {
-	r.Params.Message = fmt.Sprintf("[CQ:image,file=%s]", img)
+	r.Params.Message += fmt.Sprintf("[CQ:image,file=%v]", img)
 	return r
 }

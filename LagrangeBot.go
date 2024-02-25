@@ -18,13 +18,12 @@ import (
 
 type Core struct {
 	ApiUrl                    string
-	events                    map[events.EventName][]events.EventCallbackFunc
+	events                    map[string][]events.EventCallbackFunc
 	lock                      sync.RWMutex
 	err                       error
 	Client                    *websocket.Conn
 	handlePanic               func(any)
 	retryCount, MaxRetryCount int
-	autoSignToken             bool
 	apibase                   string
 	botQQ                     *int64
 	groupQQ                   *int64
@@ -43,7 +42,7 @@ func (c *Core) HandlePanic(h func(any)) {
 func (c *Core) On(event events.EventName, callback events.EventCallbackFunc) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
-	c.events[event] = append(c.events[event], callback)
+	c.events[string(event)] = append(c.events[string(event)], callback)
 }
 
 func (c *Core) ListenAndWait(ctx context.Context) (e error) {
@@ -111,7 +110,7 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 				return
 			}
 			log.Debug(string(message))
-			event, err := events.New(message)
+			event, _, ok, err := events.New(message)
 			if err != nil {
 				log.Error("error:", eris.ToString(err, true))
 				continue
@@ -119,7 +118,21 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 
 			var callbacks []events.EventCallbackFunc
 			c.lock.RLock()
-			callbacks = c.events[event.GetMessageType()]
+			//var ok string
+			//switch event.GetPostType() {
+			//case string(events.MESSAGE):
+			//	marshal, _ := json.Marshal(event)
+			//	fmt.Println(string(marshal))
+			//	ok = event.GetMessageType()
+			//
+			//case string(events.NOTICE):
+			//	ok = event.GetNoticeSubType()
+			//case string(events.REQUEST):
+			//	ok = event.GetNoticeSubType()
+			//case string(events.METAEVENT):
+			//	ok = event.GetNoticeSubType()
+			//}
+			callbacks = c.events[ok]
 			c.lock.RUnlock()
 			go func() {
 				defer func() {
@@ -148,11 +161,10 @@ func NewCore(api string, opt ...CoreOpt) (*Core, error) {
 	c := &Core{
 		ApiUrl:        api,
 		apibase:       api,
-		events:        make(map[events.EventName][]events.EventCallbackFunc),
+		events:        make(map[string][]events.EventCallbackFunc),
 		lock:          sync.RWMutex{},
 		done:          nil,
 		MaxRetryCount: 10,
-		autoSignToken: false,
 	}
 	for _, o := range opt {
 		o(c)
