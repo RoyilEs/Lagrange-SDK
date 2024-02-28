@@ -12,9 +12,10 @@ type DoApi interface {
 type Request struct {
 	Action string `json:"action"`
 	Params struct {
-		GroupID int64  `json:"group_id,omitempty"`
-		UserID  int64  `json:"user_id,omitempty"`
-		Message string `json:"message,omitempty"`
+		GroupID  int64  `json:"group_id,omitempty"`
+		UserID   int64  `json:"user_id,omitempty"`
+		Message  string `json:"message,omitempty"`
+		Duration int    `json:"duration,omitempty"`
 	} `json:"params"`
 }
 
