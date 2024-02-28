@@ -2,7 +2,6 @@ package apiBuilder
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/websocket"
 )
 
@@ -15,13 +14,12 @@ type Request struct {
 	Params struct {
 		GroupID int64  `json:"group_id,omitempty"`
 		UserID  int64  `json:"user_id,omitempty"`
-		Message string `json:"message"`
+		Message string `json:"message,omitempty"`
 	} `json:"params"`
 }
 
 func (r *Request) BuildBody() ([]byte, error) {
 	body, err := json.Marshal(r)
-	fmt.Println(string(body))
 	return body, err
 }
 
@@ -38,6 +36,6 @@ func (r *Request) Do(client *websocket.Conn) error {
 	return nil
 }
 
-func New() IMainFunc {
+func NewApi() IMainFuncApi {
 	return &Request{}
 }
