@@ -115,23 +115,10 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 				log.Error("error:", eris.ToString(err, true))
 				continue
 			}
-
-			var callbacks []events.EventCallbackFunc
+			var (
+				callbacks []events.EventCallbackFunc
+			)
 			c.lock.RLock()
-			//var ok string
-			//switch event.GetPostType() {
-			//case string(events.MESSAGE):
-			//	marshal, _ := json.Marshal(event)
-			//	fmt.Println(string(marshal))
-			//	ok = event.GetMessageType()
-			//
-			//case string(events.NOTICE):
-			//	ok = event.GetNoticeSubType()
-			//case string(events.REQUEST):
-			//	ok = event.GetNoticeSubType()
-			//case string(events.METAEVENT):
-			//	ok = event.GetNoticeSubType()
-			//}
 			callbacks = c.events[ok]
 			c.lock.RUnlock()
 			go func() {

@@ -8,6 +8,14 @@ type IUnSet interface {
 	ICommonNotice
 }
 
+type IInvite interface {
+	ICommonNotice
+}
+
+type IKick interface {
+	ICommonNotice
+}
+
 type ICommonNotice interface {
 	GetSubType() string
 	GetGroupID() int64

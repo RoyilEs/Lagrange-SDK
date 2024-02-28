@@ -7,6 +7,8 @@ import (
 
 //go:generate easyjson events.go
 
+var client *websocket.Conn
+
 type EventName string
 
 const (
@@ -14,6 +16,8 @@ const (
 	EventPrivateMsg EventName = "private"
 	EventSetAdmin   EventName = "set"
 	EventUnSetAdmin EventName = "unset"
+	EventInvite     EventName = "invite"
+	EventKick       EventName = "kick"
 )
 
 type PostType string
@@ -27,10 +31,11 @@ const (
 
 type EventCallbackFunc func(client *websocket.Conn, event IEvent)
 
-// IEvent TODO 整合onebot四种推送事件
+// IEvent TODO 整合onebot四种推送事件 每个Api所推送回的信息体
 type IEvent interface {
 	IEventMessage
 	IEventNotice
+	IEVentStatus
 }
 
 type IEventMessage interface {
@@ -42,6 +47,13 @@ type IEventMessage interface {
 type IEventNotice interface {
 	ParseSet() ISet
 	ParseUnSet() IUnSet
+	ParseInvite() IInvite
+	ParseKick() IKick
+}
+
+type IEVentStatus interface {
+	ParseGroupMemberInfo() IGroupMemberInfo
+	ParseGroupMsgInfo() IGroupMsgID
 }
 
 func New(data []byte) (*Event, []byte, string, error) {
@@ -64,6 +76,9 @@ func New(data []byte) (*Event, []byte, string, error) {
 	case string(METAEVENT):
 		ok = event.EventNoticeStruct.GetSubType()
 	}
+	if event.EventStatus.Status == "ok" {
+		err = json.Unmarshal(data, &event.EventStatus)
+	}
 	return event, data, ok, nil
 }
 
@@ -71,6 +86,7 @@ type Event struct {
 	rawEvent           []byte
 	EventMessageStruct EventMessageStruct
 	EventNoticeStruct  EventNoticeStruct
+	EventStatus        EventStatus
 	EventStruct
 }
 
@@ -102,6 +118,38 @@ func (e *Event) ParseSet() ISet {
 
 func (e *Event) ParseUnSet() IUnSet {
 	return &e.EventNoticeStruct
+}
+
+func (e *Event) ParseInvite() IInvite {
+	return &e.EventNoticeStruct
+}
+
+func (e *Event) ParseKick() IKick {
+	return &e.EventNoticeStruct
+}
+
+/**
+IEventStatus
+*/
+
+func (e *Event) ParseGroupMemberInfo() IGroupMemberInfo {
+	return e
+}
+
+func (e *Event) GetJoinTime() int64 {
+	return e.EventStatus.GetJoinTime()
+}
+
+func (e *Event) GetLastSentTime() int64 {
+	return e.EventStatus.GetLastSentTime()
+}
+
+func (e *Event) GetUnFriendly() bool {
+	return e.EventStatus.GetUnFriendly()
+}
+
+func (e *Event) ParseGroupMsgInfo() IGroupMsgID {
+	return e
 }
 
 func (e *EventStruct) GetTime() int64 {
