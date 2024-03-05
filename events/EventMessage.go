@@ -35,6 +35,7 @@ type IMessage interface {
 	GetUrl() []string
 	GetQQ() []string
 	GetID() []string
+	GetAtQQ() []string
 }
 
 type ICommonMsg interface {
@@ -42,6 +43,7 @@ type ICommonMsg interface {
 	GetMessageSubType() string
 	GetMessageID() int64
 	GetUserID() int64
+	GetEventMessageStruct() EventMessageStruct
 }
 
 type EventMessageStruct struct {
@@ -86,6 +88,10 @@ func (e *Event) GetMessageType() string {
 }
 func (e *Event) GetMessageID() int64 {
 	return e.EventMessageStruct.MessageID
+}
+
+func (e *Event) GetEventMessageStruct() EventMessageStruct {
+	return e.EventMessageStruct
 }
 
 func (e *Event) GetUserID() int64 {
@@ -170,6 +176,16 @@ func (e *EventMessageStruct) GetQQ() []string {
 		msgQQ = append(msgQQ, v.Data.QQ)
 	}
 	return msgQQ
+}
+
+func (e *EventMessageStruct) GetAtQQ() []string {
+	var msgAtQQ []string
+	for _, v := range *e.Message {
+		if v.Type == "at" {
+			msgAtQQ = append(msgAtQQ, v.Data.QQ)
+		}
+	}
+	return msgAtQQ
 }
 
 func (e *EventMessageStruct) GetID() []string {

@@ -4,22 +4,35 @@ import (
 	"fmt"
 )
 
+type ISendReply interface {
+	SendGroupMsg() ISendGroupMsg
+	SendPrivateMsg() ISendPrivateMsg
+}
+
 type ISendGroupMsg interface {
 	IMsg
+	ISendReply
 	ToGroupID(group int64) IMsg
 }
 
 type ISendPrivateMsg interface {
 	IMsg
+	ISendReply
 	ToPrivateID(user int64) IMsg
 }
 
 type IMsg interface {
 	TextMsg(text string) IMsg
+	JsonMsg(json string) IMsg
 	ImgMsg(img string) IMsg
 	ImgBase64Msg(imgBase64 string) IMsg
 	Face(ID int) IMsg
 	DoApi
+}
+
+func (r *Request) SendReply(msgID int64) ISendReply {
+	r.Params.Message += fmt.Sprintf("[CQ:reply,id=%d]", msgID)
+	return r
 }
 
 func (r *Request) SendGroupMsg() ISendGroupMsg {
@@ -46,6 +59,11 @@ func (r *Request) ToPrivateID(user int64) IMsg {
 
 func (r *Request) TextMsg(text string) IMsg {
 	r.Params.Message += text
+	return r
+}
+
+func (r *Request) JsonMsg(json string) IMsg {
+	r.Params.Message += fmt.Sprintf("[CQ:json,data=%v]", json)
 	return r
 }
 

@@ -2,6 +2,7 @@ package apiBuilder
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 )
 
@@ -29,6 +30,7 @@ func (r *Request) Do(client *websocket.Conn) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(string(body))
 	// 发送 JSON 消息
 	err = client.WriteMessage(websocket.TextMessage, body)
 	if err != nil {

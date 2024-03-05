@@ -10,7 +10,7 @@ func (r *Request) SetGroupKick() ISetGroupKick {
 }
 
 func (r *Request) ToGroupIDAndKickUserID(groupID int64, userID int64) ISetGroupBan {
-	r.Action = string(SetGroupBan)
+	r.Action = string(SetGroupKick)
 	r.Params.GroupID = groupID
 	r.Params.UserID = userID
 	return r
