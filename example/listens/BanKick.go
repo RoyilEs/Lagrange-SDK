@@ -20,7 +20,7 @@ func BanKick(client *websocket.Conn, event events.IEvent) {
 	if text[0] == "mute " {
 		atoi, err := strconv.Atoi(strings.TrimSpace(text[2]))
 		if err != nil {
-			apiBuilder.NewApi().SendGroupMsg().ToGroupID(groupMsg.GetGroupID()).TextMsg("请输入数字1").Do(client)
+			apiBuilder.NewApi().SendGroupMsg(groupMsg.GetGroupID()).TextMsg("请输入数字1").Do(client)
 			log.Info(err)
 			return
 		}
@@ -28,7 +28,7 @@ func BanKick(client *websocket.Conn, event events.IEvent) {
 		atQQ := groupMsg.ParseTextMsg().GetAtQQ()
 		i, err := strconv.ParseInt(atQQ[0], 10, 64)
 		if err != nil {
-			apiBuilder.NewApi().SendGroupMsg().ToGroupID(groupMsg.GetGroupID()).TextMsg("请输入数字2").Do(client)
+			apiBuilder.NewApi().SendGroupMsg(groupMsg.GetGroupID()).TextMsg("请输入数字2").Do(client)
 			return
 		}
 		apiBuilder.NewApi().SetGroupBan().ToGroupIDAndMuteUserID(groupMsg.GetGroupID(), i).Duration(atoi).Do(client)
@@ -39,7 +39,7 @@ func BanKick(client *websocket.Conn, event events.IEvent) {
 		atQQ := groupMsg.ParseTextMsg().GetAtQQ()
 		i, err := strconv.ParseInt(atQQ[0], 10, 64)
 		if err != nil {
-			apiBuilder.NewApi().SendGroupMsg().ToGroupID(groupMsg.GetGroupID()).TextMsg("请输入数字2").Do(client)
+			apiBuilder.NewApi().SendGroupMsg(groupMsg.GetGroupID()).TextMsg("请输入数字2").Do(client)
 			return
 		}
 		apiBuilder.NewApi().SetGroupKick().ToGroupIDAndKickUserID(groupMsg.GetGroupID(), i).Do(client)

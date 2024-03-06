@@ -5,20 +5,18 @@ import (
 )
 
 type ISendReply interface {
-	SendGroupMsg() ISendGroupMsg
-	SendPrivateMsg() ISendPrivateMsg
+	SendGroupMsg(groupID int64) ISendGroupMsg
+	SendPrivateMsg(userID int64) ISendPrivateMsg
 }
 
 type ISendGroupMsg interface {
 	IMsg
 	ISendReply
-	ToGroupID(group int64) IMsg
 }
 
 type ISendPrivateMsg interface {
 	IMsg
 	ISendReply
-	ToPrivateID(user int64) IMsg
 }
 
 type IMsg interface {
@@ -35,25 +33,17 @@ func (r *Request) SendReply(msgID int64) ISendReply {
 	return r
 }
 
-func (r *Request) SendGroupMsg() ISendGroupMsg {
+func (r *Request) SendGroupMsg(GroupID int64) ISendGroupMsg {
 	cmd := SendGroupMsg
 	r.Action = string(cmd)
+	r.Params.GroupID = GroupID
 	return r
 }
 
-func (r *Request) ToGroupID(group int64) IMsg {
-	r.Params.GroupID = group
-	return r
-}
-
-func (r *Request) SendPrivateMsg() ISendPrivateMsg {
+func (r *Request) SendPrivateMsg(userID int64) ISendPrivateMsg {
 	cmd := SendPrivateMsg
 	r.Action = string(cmd)
-	return r
-}
-
-func (r *Request) ToPrivateID(user int64) IMsg {
-	r.Params.UserID = user
+	r.Params.UserID = userID
 	return r
 }
 

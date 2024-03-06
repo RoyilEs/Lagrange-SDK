@@ -12,8 +12,8 @@ const (
 
 type IMainFuncApi interface {
 	SendReply(msgID int64) ISendReply
-	SendGroupMsg() ISendGroupMsg
-	SendPrivateMsg() ISendPrivateMsg
+	SendGroupMsg(groupID int64) ISendGroupMsg
+	SendPrivateMsg(userID int64) ISendPrivateMsg
 	GetGroupMemberInfo() IGroupMemberInfo
 	SetGroupBan() ISetGroupBan
 	SetGroupKick() ISetGroupKick
