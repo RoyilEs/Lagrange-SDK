@@ -5,13 +5,13 @@ type ISetGroupKick interface {
 	DoApi
 }
 
-func (r *Request) SetGroupKick() ISetGroupKick {
-	return r
+func (b *Builder) SetGroupKick() ISetGroupKick {
+	return b
 }
 
-func (r *Request) ToGroupIDAndKickUserID(groupID int64, userID int64) ISetGroupBan {
-	r.Action = string(SetGroupKick)
-	r.Params.GroupID = groupID
-	r.Params.UserID = userID
-	return r
+func (b *Builder) ToGroupIDAndKickUserID(groupID int64, userID int64) ISetGroupBan {
+	b.action = SetGroupKick
+	b.Params.GroupID = groupID
+	b.Params.UserID = userID
+	return b
 }

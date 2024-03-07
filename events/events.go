@@ -1,6 +1,7 @@
 package events
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/gorilla/websocket"
 )
@@ -29,7 +30,7 @@ const (
 	METAEVENT PostType = "meta_event"
 )
 
-type EventCallbackFunc func(client *websocket.Conn, event IEvent)
+type EventCallbackFunc func(ctx context.Context, event IEvent)
 
 // IEvent TODO 整合onebot四种推送事件 每个Api所推送回的信息体
 type IEvent interface {

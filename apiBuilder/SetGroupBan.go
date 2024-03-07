@@ -6,18 +6,18 @@ type ISetGroupBan interface {
 	DoApi
 }
 
-func (r *Request) SetGroupBan() ISetGroupBan {
-	return r
+func (b *Builder) SetGroupBan() ISetGroupBan {
+	return b
 }
 
-func (r *Request) ToGroupIDAndMuteUserID(groupID int64, userID int64) ISetGroupBan {
-	r.Action = string(SetGroupBan)
-	r.Params.GroupID = groupID
-	r.Params.UserID = userID
-	return r
+func (b *Builder) ToGroupIDAndMuteUserID(groupID int64, userID int64) ISetGroupBan {
+	b.action = SetGroupBan
+	b.Params.GroupID = groupID
+	b.Params.UserID = userID
+	return b
 }
 
-func (r *Request) Duration(duration int) ISetGroupBan {
-	r.Params.Duration = duration
-	return r
+func (b *Builder) Duration(duration int) ISetGroupBan {
+	b.Params.Duration = duration
+	return b
 }

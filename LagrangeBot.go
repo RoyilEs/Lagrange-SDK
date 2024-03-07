@@ -4,6 +4,7 @@ import (
 	"Lagrange-SDK/errors"
 	"Lagrange-SDK/events"
 	"github.com/rotisserie/eris"
+	"net/url"
 	"runtime/debug"
 	"time"
 
@@ -17,7 +18,7 @@ import (
 )
 
 type Core struct {
-	ApiUrl                    string
+	ApiUrl                    *url.URL
 	events                    map[string][]events.EventCallbackFunc
 	lock                      sync.RWMutex
 	err                       error
@@ -84,7 +85,7 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 		}
 	}()
 	var err error
-	c.Client, _, err = websocket.DefaultDialer.DialContext(ctx, "ws://"+c.ApiUrl+"/ws", nil)
+	c.Client, _, err = websocket.DefaultDialer.DialContext(ctx, "ws://"+c.ApiUrl.Host+"/ws", nil)
 	if err != nil {
 		return err
 	}
@@ -94,7 +95,7 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 		}
 	}()
 	c.retryCount = 0
-	log.Info("连接成功到:" + c.ApiUrl)
+	log.Info("连接成功到:" + c.ApiUrl.Host)
 	go func() {
 		defer close(c.done)
 		for {
@@ -132,7 +133,7 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 					}
 				}()
 				for _, v := range callbacks {
-					v(c.Client, event)
+					v(ctx, event)
 				}
 			}()
 		}
@@ -144,9 +145,9 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 }
 
 func NewCore(api string, opt ...CoreOpt) (*Core, error) {
-
+	u, _ := url.Parse(api)
 	c := &Core{
-		ApiUrl:        api,
+		ApiUrl:        u,
 		apibase:       api,
 		events:        make(map[string][]events.EventCallbackFunc),
 		lock:          sync.RWMutex{},

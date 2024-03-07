@@ -1,42 +1,100 @@
 package apiBuilder
 
 import (
+	"context"
 	"encoding/json"
-	"github.com/gorilla/websocket"
+	"fmt"
+	"github.com/charmbracelet/log"
+	"github.com/imroc/req/v3"
+	"net/url"
 )
 
 type DoApi interface {
-	Do(client *websocket.Conn) error
+	Do(ctx context.Context) error
+	DowithCallBack(ctx context.Context, callBack func(response *Response, err error)) error
+	DoAndResponse(ctx context.Context) (*Response, error)
 }
 
-type Request struct {
-	Action string `json:"action"`
+type Builder struct {
+	url    string
+	path   *string
+	method *string
+	action ApiName
 	Params struct {
-		GroupID  int64  `json:"group_id,omitempty"`
-		UserID   int64  `json:"user_id,omitempty"`
-		Message  string `json:"message,omitempty"`
-		Duration int    `json:"duration,omitempty"`
+		GroupID int64 `json:"group_id,omitempty"`
+		UserID  int64 `json:"user_id,omitempty"`
+		Message []struct {
+			Type string `json:"type"`
+			data struct {
+				Text string `json:"text"`
+				File string `json:"file"`
+				Url  string `json:"url"`
+				QQ   string `json:"qq"`
+				ID   string `json:"id"`
+			}
+		} `json:"message,omitempty"`
+		Duration int `json:"duration,omitempty"`
 	} `json:"params"`
 }
 
-func (r *Request) BuildBody() ([]byte, error) {
-	body, err := json.Marshal(r)
-	return body, err
+func (b *Builder) BuildStringBody() (string, error) {
+	body, err := json.Marshal(b)
+	return string(body), err
 }
 
-func (r *Request) Do(client *websocket.Conn) error {
-	body, err := r.BuildBody()
+func (b *Builder) Do(ctx context.Context) error {
+	r, err := b.DoAndResponse(ctx)
 	if err != nil {
 		return err
 	}
-	// 发送 JSON 消息
-	err = client.WriteMessage(websocket.TextMessage, body)
-	if err != nil {
-		return err
+	if !r.Ok() {
+		return fmt.Errorf(r.StatusMsg())
 	}
 	return nil
 }
 
-func NewApi() IMainFuncApi {
-	return &Request{}
+func (b *Builder) DowithCallBack(ctx context.Context, callBack func(response *Response, err error)) error {
+	r, err := b.DoAndResponse(ctx)
+	if err != nil {
+		return err
+	}
+	if !r.Ok() {
+		return fmt.Errorf(r.StatusMsg())
+	}
+	defer callBack(r, nil)
+	return nil
+}
+func (b *Builder) DoAndResponse(ctx context.Context) (*Response, error) {
+	body, err := b.BuildStringBody()
+	if err != nil {
+		return nil, err
+	}
+	log.Debug("requset", "body", body)
+	client := req.SetContext(ctx)
+	if b.path != nil {
+		u, _ := url.JoinPath(b.url, *b.path)
+		client.SetURL(u)
+	} else {
+		u, _ := url.JoinPath(b.url, string(b.action))
+		client.SetURL(u)
+	}
+
+	if b.method != nil {
+		client.Method = *b.method
+	} else {
+		client.Method = "POST"
+	}
+	resp := client.SetBodyString(body).Do()
+	if resp.Err != nil {
+		return nil, resp.Err
+	}
+	r := NewResponse(resp.Bytes())
+	if !r.Ok() {
+		return nil, fmt.Errorf(r.StatusMsg())
+	}
+	return r, nil
+}
+
+func New(url string) IMainFuncApi {
+	return &Builder{url: url}
 }
