@@ -21,19 +21,10 @@ type Builder struct {
 	method *string
 	action ApiName
 	Params struct {
-		GroupID int64 `json:"group_id,omitempty"`
-		UserID  int64 `json:"user_id,omitempty"`
-		Message []struct {
-			Type string `json:"type"`
-			data struct {
-				Text string `json:"text"`
-				File string `json:"file"`
-				Url  string `json:"url"`
-				QQ   string `json:"qq"`
-				ID   string `json:"id"`
-			}
-		} `json:"message,omitempty"`
-		Duration int `json:"duration,omitempty"`
+		GroupID  int64           `json:"group_id,omitempty"`
+		UserID   int64           `json:"user_id,omitempty"`
+		Message  []MessageStruct `json:"message,omitempty"`
+		Duration int             `json:"duration,omitempty"`
 	} `json:"params"`
 }
 

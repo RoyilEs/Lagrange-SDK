@@ -1,7 +1,7 @@
 package apiBuilder
 
 import (
-	"fmt"
+	"strconv"
 )
 
 type ISendReply interface {
@@ -28,45 +28,96 @@ type IMsg interface {
 	DoApi
 }
 
-func (r *Request) SendReply(msgID int64) ISendReply {
-	r.Params.Message += fmt.Sprintf("[CQ:reply,id=%d]", msgID)
-	return r
+type MessageStruct struct {
+	Type string      `json:"type"`
+	Data DataMessage `json:"data"`
 }
 
-func (r *Request) SendGroupMsg(GroupID int64) ISendGroupMsg {
+type DataMessage struct {
+	Text string `json:"text,omitempty"`
+	File string `json:"file,omitempty"`
+	Data string `json:"data,omitempty"`
+	Url  string `json:"url,omitempty"`
+	QQ   string `json:"qq,omitempty"`
+	ID   string `json:"id,omitempty"`
+}
+
+func (b *Builder) SendReply(msgID int64) ISendReply {
+	i := append(b.Params.Message, MessageStruct{
+		Type: "reply",
+		Data: DataMessage{
+			ID: strconv.FormatInt(msgID, 10),
+		},
+	})
+	b.Params.Message = i
+	return b
+}
+
+func (b *Builder) SendGroupMsg(GroupID int64) ISendGroupMsg {
 	cmd := SendGroupMsg
-	r.Action = string(cmd)
-	r.Params.GroupID = GroupID
-	return r
+	b.action = cmd
+	b.Params.GroupID = GroupID
+	return b
 }
 
-func (r *Request) SendPrivateMsg(userID int64) ISendPrivateMsg {
+func (b *Builder) SendPrivateMsg(userID int64) ISendPrivateMsg {
 	cmd := SendPrivateMsg
-	r.Action = string(cmd)
-	r.Params.UserID = userID
-	return r
+	b.action = cmd
+	b.Params.UserID = userID
+	return b
 }
 
-func (r *Request) TextMsg(text string) IMsg {
-	r.Params.Message += text
-	return r
+func (b *Builder) TextMsg(text string) IMsg {
+	i := append(b.Params.Message, MessageStruct{
+		Type: "text",
+		Data: DataMessage{
+			Text: text,
+		},
+	})
+	b.Params.Message = i
+	return b
 }
 
-func (r *Request) JsonMsg(json string) IMsg {
-	r.Params.Message += fmt.Sprintf("[CQ:json,data=%v]", json)
-	return r
+func (b *Builder) JsonMsg(json string) IMsg {
+	i := append(b.Params.Message, MessageStruct{
+		Type: "json",
+		Data: DataMessage{
+			Data: json,
+		},
+	})
+	b.Params.Message = i
+	return b
+
 }
 
-func (r *Request) Face(ID int) IMsg {
-	r.Params.Message += fmt.Sprintf("[CQ:face,id=%d]", ID)
-	return r
+func (b *Builder) Face(ID int) IMsg {
+	i := append(b.Params.Message, MessageStruct{
+		Type: "face",
+		Data: DataMessage{
+			ID: strconv.Itoa(ID),
+		},
+	})
+	b.Params.Message = i
+	return b
 }
 
-func (r *Request) ImgMsg(img string) IMsg {
-	r.Params.Message += fmt.Sprintf("[CQ:image,file=%v]", img)
-	return r
+func (b *Builder) ImgMsg(img string) IMsg {
+	i := append(b.Params.Message, MessageStruct{
+		Type: "image",
+		Data: DataMessage{
+			File: img,
+		},
+	})
+	b.Params.Message = i
+	return b
 }
-func (r *Request) ImgBase64Msg(imgBase64 string) IMsg {
-	r.Params.Message += fmt.Sprintf("[CQ:image,file=base64://%v]", imgBase64)
-	return r
+func (b *Builder) ImgBase64Msg(imgBase64 string) IMsg {
+	i := append(b.Params.Message, MessageStruct{
+		Type: "image",
+		Data: DataMessage{
+			File: "base64://" + imgBase64,
+		},
+	})
+	b.Params.Message = i
+	return b
 }
