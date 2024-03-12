@@ -3,7 +3,7 @@
 
 ## 使用说明
 
-```go
+```go 
 package main
 
 import (
@@ -13,14 +13,15 @@ import (
 	"context"
 )
 
-core, err := Lagrange.NewCore("127.0.0.1:8080")
+func main() {
+	core, err := Lagrange.NewCore("127.0.0.1:8080")
 	if err != nil {
 		return
 	}
-	core.On(events.EventGroupMsg, func(client *websocket.Conn, event events.IEvent) {
+	core.On(events.EventGroupMsg, func(ctx context.Context, event events.IEvent) {
 		groupMsg := event.ParseGroupMsg()
 		if groupMsg.ParseTextMsg().GetText()[0] == "test" {
-			apiBuilder.New().SendGroupMsg().ToGroupID(groupMsg.GetGroupID()).TextMsg("测试").Do()
+			apiBuilder.New("127.0.0.1:8080").SendGroupMsg(groupMsg.GetGroupID()).TextMsg("测试").Do(ctx)
 		}
 
 	})
@@ -28,3 +29,7 @@ core, err := Lagrange.NewCore("127.0.0.1:8080")
 	if err != nil {
 		panic(err)
 	}
+}
+
+```
+

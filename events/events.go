@@ -137,6 +137,10 @@ func (e *Event) ParseGroupMemberInfo() IGroupMemberInfo {
 	return e
 }
 
+func (e *Event) GetForwardID() string {
+	return e.EventStatus.GetForwardID()
+}
+
 func (e *Event) GetJoinTime() int64 {
 	return e.EventStatus.GetJoinTime()
 }

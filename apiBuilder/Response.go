@@ -14,6 +14,7 @@ type Data struct {
 	GroupID      int64  `json:"group_id,omitempty"`
 	UserID       int64  `json:"user_id,omitempty"`
 	MessageID    int64  `json:"message_id,omitempty"`
+	ForwardID    string `json:"forward_id,omitempty"`
 	NickName     string `json:"nickname,omitempty"`
 	Card         any    `json:"card,omitempty"`
 	Sex          string `json:"sex,omitempty"`

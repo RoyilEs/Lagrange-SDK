@@ -4,13 +4,11 @@ type IGroupMsgID interface {
 	GetMessageID() int64
 }
 
-func (e *EventStatus) GetMessageID() int64 {
-	return e.Data.MessageID
-}
-
 type IGroupMemberInfo interface {
 	GetGroupID() int64
 	GetUserID() int64
+	GetMessageID() int64
+	GetForwardID() string
 	GetNickName() string
 	GetCard() any
 	GetSex() string
@@ -30,6 +28,14 @@ func (e *EventStatus) GetGroupID() int64 {
 
 func (e *EventStatus) GetUserID() int64 {
 	return e.Data.UserID
+}
+
+func (e *EventStatus) GetMessageID() int64 {
+	return e.Data.MessageID
+}
+
+func (e *EventStatus) GetForwardID() string {
+	return e.Data.ForwardID
 }
 
 func (e *EventStatus) GetNickName() string {
@@ -87,6 +93,7 @@ type Data struct {
 	GroupID      int64  `json:"group_id,omitempty"`
 	UserID       int64  `json:"user_id,omitempty"`
 	MessageID    int64  `json:"message_id,omitempty"`
+	ForwardID    string `json:"forward_id,omitempty"`
 	NickName     string `json:"nickname,omitempty"`
 	Card         any    `json:"card,omitempty"`
 	Sex          string `json:"sex,omitempty"`

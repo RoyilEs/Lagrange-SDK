@@ -11,7 +11,7 @@ import (
 
 type DoApi interface {
 	Do(ctx context.Context) error
-	DowithCallBack(ctx context.Context, callBack func(response *Response, err error)) error
+	DoWithCallBack(ctx context.Context, callBack func(response *Response, err error)) error
 	DoAndResponse(ctx context.Context) (*Response, error)
 }
 
@@ -21,15 +21,17 @@ type Builder struct {
 	method *string
 	action ApiName
 	Params struct {
-		GroupID  int64           `json:"group_id,omitempty"`
-		UserID   int64           `json:"user_id,omitempty"`
-		Message  []MessageStruct `json:"message,omitempty"`
-		Duration int             `json:"duration,omitempty"`
+		GroupID  int64            `json:"group_id,omitempty"`
+		UserID   int64            `json:"user_id,omitempty"`
+		Message  []*MessageStruct `json:"message,omitempty"`
+		Messages []*MessageStruct `json:"messages,omitempty"`
+		Duration int              `json:"duration,omitempty"`
 	} `json:"params"`
 }
 
 func (b *Builder) BuildStringBody() (string, error) {
-	body, err := json.Marshal(b)
+	body, err := json.Marshal(b.Params)
+	fmt.Println(string(body))
 	return string(body), err
 }
 
@@ -44,7 +46,7 @@ func (b *Builder) Do(ctx context.Context) error {
 	return nil
 }
 
-func (b *Builder) DowithCallBack(ctx context.Context, callBack func(response *Response, err error)) error {
+func (b *Builder) DoWithCallBack(ctx context.Context, callBack func(response *Response, err error)) error {
 	r, err := b.DoAndResponse(ctx)
 	if err != nil {
 		return err
@@ -75,7 +77,7 @@ func (b *Builder) DoAndResponse(ctx context.Context) (*Response, error) {
 	} else {
 		client.Method = "POST"
 	}
-	resp := client.SetBodyString(body).Do()
+	resp := client.SetHeader("Content-Type", "application/json").SetBodyString(body).Do()
 	if resp.Err != nil {
 		return nil, resp.Err
 	}
