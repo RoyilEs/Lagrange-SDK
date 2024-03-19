@@ -18,7 +18,10 @@ const (
 	EventSetAdmin   EventName = "set"
 	EventUnSetAdmin EventName = "unset"
 	EventInvite     EventName = "invite"
+	EventApprove    EventName = "approve"
 	EventKick       EventName = "kick"
+	EventKickMe     EventName = "kick_me"
+	EventLeave      EventName = "leave"
 )
 
 type PostType string
@@ -50,6 +53,7 @@ type IEventNotice interface {
 	ParseUnSet() IUnSet
 	ParseInvite() IInvite
 	ParseKick() IKick
+	ParseLeave() IKick
 }
 
 type IEVentStatus interface {
@@ -126,6 +130,10 @@ func (e *Event) ParseInvite() IInvite {
 }
 
 func (e *Event) ParseKick() IKick {
+	return &e.EventNoticeStruct
+}
+
+func (e *Event) ParseLeave() IKick {
 	return &e.EventNoticeStruct
 }
 
