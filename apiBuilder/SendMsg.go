@@ -2,6 +2,9 @@ package apiBuilder
 
 import (
 	"Lagrange-SDK/message"
+	"context"
+	"errors"
+	"github.com/charmbracelet/log"
 	"strconv"
 )
 
@@ -27,6 +30,7 @@ type IMsg interface {
 	ImgBase64Msg(imgBase64 string) IMsg
 	LongMsg(ID string) IMsg
 	Face(ID int) IMsg
+	DoMsgID(ctx context.Context) (int64, error)
 	DoApi
 }
 
@@ -143,4 +147,20 @@ func (b *Builder) LongMsg(ID string) IMsg {
 	})
 	b.Params.Message = i
 	return b
+}
+
+func (b *Builder) DoMsgID(ctx context.Context) (int64, error) {
+	resp, err := b.DoAndResponse(ctx)
+	if err != nil {
+		return 0, err
+	}
+	log.Debug(string(resp.GetOrigin()))
+	if !resp.Ok() {
+		return 0, errors.New(resp.StatusMsg())
+	}
+
+	if err != nil {
+		return 0, err
+	}
+	return resp.response.Data.MessageID, nil
 }

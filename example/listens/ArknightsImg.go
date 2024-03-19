@@ -4,12 +4,13 @@ import (
 	"Lagrange-SDK/apiBuilder"
 	"Lagrange-SDK/common/limiter"
 	"Lagrange-SDK/events"
+	"Lagrange-SDK/global"
 	"Lagrange-SDK/models/pixiv"
 	"Lagrange-SDK/utils"
 	"Lagrange-SDK/utils/image"
+	"context"
 	"encoding/base64"
 	"github.com/charmbracelet/log"
-	"github.com/gorilla/websocket"
 	"golang.org/x/time/rate"
 	"io/ioutil"
 	"strings"
@@ -18,10 +19,10 @@ import (
 
 var (
 	Limit     = limiter.NewLimiter(rate.Every(1*time.Second), 2, "")
-	iMainFunc = apiBuilder.NewApi()
+	iMainFunc = apiBuilder.New(global.BotUrl)
 )
 
-func ArknightsImg(client *websocket.Conn, event events.IEvent) {
+func ArknightsImg(ctx context.Context, event events.IEvent) {
 	if event.GetMessageType() == string(events.EventGroupMsg) {
 		groupMsg := event.ParseGroupMsg()
 		text := groupMsg.ParseTextMsg().GetText()
@@ -45,7 +46,7 @@ func ArknightsImg(client *websocket.Conn, event events.IEvent) {
 				buf := i.UrlToBase64(pixiv.ModifyPixivImageUrl(url))
 				log.Info(url)
 				iMainFunc.SendGroupMsg(groupMsg.GetGroupID()).
-					ImgBase64Msg(buf).Do(client)
+					ImgBase64Msg(buf).Do(ctx)
 			}
 		}
 
@@ -56,19 +57,19 @@ func ArknightsImg(client *websocket.Conn, event events.IEvent) {
 				log.Info(url)
 				encodeToBase64, err := image.CompressQualityAndEncodeToBase64ByUrl(url, 50)
 				if err != nil {
-					iMainFunc.SendGroupMsg(groupMsg.GetGroupID()).TextMsg(err.Error()).Do(client)
+					iMainFunc.SendGroupMsg(groupMsg.GetGroupID()).TextMsg(err.Error()).Do(ctx)
 					log.Error(err)
 					return
 				}
 				log.Info(url)
 				iMainFunc.SendGroupMsg(groupMsg.GetGroupID()).
-					ImgBase64Msg(encodeToBase64).Do(client)
+					ImgBase64Msg(encodeToBase64).Do(ctx)
 			}
 		}
 	}
 }
 
-func PixivImg(client *websocket.Conn, event events.IEvent) {
+func PixivImg(ctx context.Context, event events.IEvent) {
 	if event.GetMessageType() == string(events.EventGroupMsg) {
 		groupMsg := event.ParseGroupMsg()
 		text := groupMsg.ParseTextMsg().GetText()
@@ -76,7 +77,7 @@ func PixivImg(client *websocket.Conn, event events.IEvent) {
 		if split[0] == "pixiv" {
 			// 令牌桶限流器--防止大量请求
 			if !Limit.Allow() {
-				iMainFunc.SendGroupMsg(groupMsg.GetGroupID()).TextMsg("请求过于频繁").Do(client)
+				iMainFunc.SendGroupMsg(groupMsg.GetGroupID()).TextMsg("请求过于频繁").Do(ctx)
 				return
 			}
 
@@ -90,8 +91,8 @@ func PixivImg(client *websocket.Conn, event events.IEvent) {
 				url := data.GetDataUrls().GetSize()
 				log.Info(url)
 				encodeToBase64, err := image.CompressQualityAndEncodeToBase64ByUrl(url, 50)
-				apiBuilder.NewApi().SendGroupMsg(groupMsg.GetGroupID()).
-					ImgBase64Msg(encodeToBase64).Do(client)
+				apiBuilder.New(global.BotUrl).SendGroupMsg(groupMsg.GetGroupID()).
+					ImgBase64Msg(encodeToBase64).Do(ctx)
 				if err != nil {
 					log.Error(err)
 					return
@@ -161,7 +162,7 @@ func randGetMingImg() (string, int) {
 	}
 }
 
-func MingImg(client *websocket.Conn, event events.IEvent) {
+func MingImg(ctx context.Context, event events.IEvent) {
 	if event.GetMessageType() == string(events.EventGroupMsg) {
 		groupMsg := event.ParseGroupMsg()
 		text := groupMsg.ParseTextMsg().GetText()
@@ -187,11 +188,11 @@ func MingImg(client *websocket.Conn, event events.IEvent) {
 				return
 			}
 		}
-		iMainFunc.SendGroupMsg(groupMsg.GetGroupID()).TextMsg("获取成功---请稍等").Do(client)
+		iMainFunc.SendGroupMsg(groupMsg.GetGroupID()).TextMsg("获取成功---请稍等").Do(ctx)
 
 		log.Info("大头图片：" + imgPath)
 
 		iMainFunc.SendGroupMsg(groupMsg.GetGroupID()).
-			ImgBase64Msg(base64.StdEncoding.EncodeToString(file)).Do(client)
+			ImgBase64Msg(base64.StdEncoding.EncodeToString(file)).Do(ctx)
 	}
 }

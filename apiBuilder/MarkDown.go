@@ -15,7 +15,7 @@ import (
 type IMarkDownBuild interface {
 	SetImage(img string) IMarkDownBuild
 	SetGo(goLagrange string) IMarkDownBuild
-	DoBuild(ctx context.Context) (string, error)
+	DoForWardID(ctx context.Context) (string, error)
 }
 
 var (
@@ -86,7 +86,7 @@ func (b *Builder) SetGo(goLagrange string) IMarkDownBuild {
 	return b
 }
 
-func (b *Builder) DoBuild(ctx context.Context) (string, error) {
+func (b *Builder) DoForWardID(ctx context.Context) (string, error) {
 	resp, err := b.DoAndResponse(ctx)
 	if err != nil {
 		return "nil", err
