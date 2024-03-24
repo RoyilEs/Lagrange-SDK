@@ -3,12 +3,9 @@ package events
 import (
 	"context"
 	"encoding/json"
-	"github.com/gorilla/websocket"
 )
 
 //go:generate easyjson events.go
-
-var client *websocket.Conn
 
 type EventName string
 

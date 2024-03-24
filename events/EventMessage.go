@@ -20,7 +20,7 @@ type IGroupMsg interface {
 
 type IGroupSender interface {
 	IPrivateSender
-	GetCard() any
+	GetCard() string
 	GetAge() int
 	GetArea() string
 	GetLevel() string
@@ -68,7 +68,7 @@ type EventMessageStruct struct {
 	Sender     *struct {
 		UserID   int64  `json:"user_id"`
 		NickName string `json:"nickname"`
-		Card     any    `json:"card"`
+		Card     string `json:"card"`
 		Sex      string `json:"sex"`
 		Age      int    `json:"age"`
 		Area     string `json:"area"`
@@ -106,7 +106,10 @@ func (e *Event) GetSex() string {
 	return e.EventMessageStruct.Sender.Sex
 }
 
-func (e *Event) GetCard() any {
+func (e *Event) GetCard() string {
+	if e.EventMessageStruct.Sender.Card == "" {
+		return e.EventMessageStruct.Sender.NickName
+	}
 	return e.EventMessageStruct.Sender.Card
 }
 

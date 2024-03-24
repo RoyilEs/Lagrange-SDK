@@ -10,7 +10,7 @@ type IGroupMemberInfo interface {
 	GetMessageID() int64
 	GetForwardID() string
 	GetNickName() string
-	GetCard() any
+	GetCard() string
 	GetSex() string
 	GetAge() int
 	GetArea() string
