@@ -26,7 +26,7 @@ type Core struct {
 	handlePanic               func(any)
 	retryCount, MaxRetryCount int
 	apibase                   string
-	botQQ                     *int64
+	BotQQ                     *int64
 	groupQQ                   *int64
 
 	done chan struct{}
@@ -144,7 +144,7 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 	return c.err
 }
 
-func NewCore(api string, opt ...CoreOpt) (*Core, error) {
+func NewCore(api string, botQQ int64, opt ...CoreOpt) (*Core, error) {
 	u, _ := url.Parse(api)
 	c := &Core{
 		ApiUrl:        u,
@@ -152,6 +152,7 @@ func NewCore(api string, opt ...CoreOpt) (*Core, error) {
 		events:        make(map[string][]events.EventCallbackFunc),
 		lock:          sync.RWMutex{},
 		done:          nil,
+		BotQQ:         &botQQ,
 		MaxRetryCount: 10,
 	}
 	for _, o := range opt {
