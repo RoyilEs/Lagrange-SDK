@@ -1,5 +1,9 @@
 package events
 
+import (
+	"strconv"
+)
+
 type IPrivateMsg interface {
 	IPrivateSender
 	ParseTextMsg() IMessage
@@ -16,6 +20,8 @@ type IGroupMsg interface {
 	IGroupSender
 	ParseTextMsg() IMessage
 	GetGroupID() int64
+	IsFromBot(botQQ int64) (flag bool)
+	AtBot(botQQ int64) (at bool)
 }
 
 type IGroupSender interface {
@@ -32,6 +38,7 @@ type IMessage interface {
 	GetType() []string
 	GetText() []string
 	GetFile() []string
+	GetData() string
 	GetUrl() []string
 	GetQQ() []string
 	GetID() []string
@@ -47,36 +54,40 @@ type ICommonMsg interface {
 }
 
 type EventMessageStruct struct {
-	MessageType string `json:"message_type,omitempty"`
-	SubType     string `json:"sub_type,omitempty"`
-	MessageID   int64  `json:"message_id,omitempty"`
-	GroupID     int64  `json:"group_id,omitempty"`
-	UserID      int64  `json:"user_id,omitempty"`
-	Anonymous   any    `json:"anonymous"`
-	Message     *[]struct {
-		Type string `json:"type"`
-		Data struct {
-			Text string `json:"text"`
-			File string `json:"file"`
-			Url  string `json:"url"`
-			QQ   string `json:"qq"`
-			ID   string `json:"id"`
-		}
-	} `json:"message,omitempty"`
-	RawMessage string `json:"raw_message,omitempty"`
-	Font       int    `json:"font,omitempty"`
-	Sender     *struct {
-		UserID   int64  `json:"user_id"`
-		NickName string `json:"nickname"`
-		Card     string `json:"card"`
-		Sex      string `json:"sex"`
-		Age      int    `json:"age"`
-		Area     string `json:"area"`
-		Level    string `json:"level"`
-		Role     string `json:"role"`
-		Title    string `json:"title"`
-	} `json:"sender,omitempty"`
+	MessageType string         `json:"message_type,omitempty"`
+	SubType     string         `json:"sub_type,omitempty"`
+	MessageID   int64          `json:"message_id,omitempty"`
+	GroupID     int64          `json:"group_id,omitempty"`
+	UserID      int64          `json:"user_id,omitempty"`
+	Anonymous   any            `json:"anonymous"`
+	Message     *[]MessageData `json:"message,omitempty"`
+	RawMessage  string         `json:"raw_message,omitempty"`
+	Font        int            `json:"font,omitempty"`
+	Sender      *Sender        `json:"sender,omitempty"`
 	EventStruct
+}
+
+type MessageData struct {
+	Type string `json:"type"`
+	Data struct {
+		Text string `json:"text,omitempty"`
+		File string `json:"file,omitempty"`
+		Data string `json:"data,omitempty"`
+		Url  string `json:"url,omitempty"`
+		QQ   string `json:"qq,omitempty"`
+		ID   string `json:"id,omitempty"`
+	}
+}
+type Sender struct {
+	UserID   int64  `json:"user_id,omitempty"`
+	NickName string `json:"nickname,omitempty"`
+	Card     string `json:"card,omitempty"`
+	Sex      string `json:"sex,omitempty"`
+	Age      int    `json:"age,omitempty"`
+	Area     string `json:"area,omitempty"`
+	Level    string `json:"level,omitempty"`
+	Role     string `json:"role,omitempty"`
+	Title    string `json:"title,omitempty"`
 }
 
 func (e *Event) GetMessageSubType() string {
@@ -141,6 +152,23 @@ func (e *Event) GetGroupID() int64 {
 	return e.EventMessageStruct.GroupID
 }
 
+func (e *Event) IsFromBot(botQQ int64) (flag bool) {
+	if e.EventMessageStruct.Sender.UserID == botQQ || e.EventNoticeStruct.UserID == botQQ {
+		flag = true
+	}
+	return flag
+}
+
+func (e *Event) AtBot(botQQ int64) (at bool) {
+	for _, v := range *e.EventMessageStruct.Message {
+		if v.Data.QQ == strconv.FormatInt(botQQ, 10) {
+			at = true
+			break
+		}
+	}
+	return at
+}
+
 func (e *EventMessageStruct) GetType() []string {
 	var msgText []string
 	for _, v := range *e.Message {
@@ -171,6 +199,13 @@ func (e *EventMessageStruct) GetUrl() []string {
 		msgUrl = append(msgUrl, v.Data.Url)
 	}
 	return msgUrl
+}
+func (e *EventMessageStruct) GetData() string {
+	var data string
+	for _, v := range *e.Message {
+		data += v.Data.Data
+	}
+	return data
 }
 
 func (e *EventMessageStruct) GetQQ() []string {

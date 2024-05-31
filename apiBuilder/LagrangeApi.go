@@ -21,17 +21,17 @@ type Builder struct {
 	method *string
 	action ApiName
 	Params struct {
-		GroupID  int64            `json:"group_id,omitempty"`
-		UserID   int64            `json:"user_id,omitempty"`
-		Message  []*MessageStruct `json:"message,omitempty"`
-		Messages []*MessageStruct `json:"messages,omitempty"`
-		Duration int              `json:"duration,omitempty"`
+		GroupID   int64            `json:"group_id,omitempty"`
+		UserID    int64            `json:"user_id,omitempty"`
+		MessageID int64            `json:"message_id,omitempty"`
+		Message   []*MessageStruct `json:"message,omitempty"`
+		Messages  []*MessageStruct `json:"messages,omitempty"`
+		Duration  int              `json:"duration,omitempty"`
 	} `json:"params"`
 }
 
 func (b *Builder) BuildStringBody() (string, error) {
 	body, err := json.Marshal(b.Params)
-	fmt.Println(string(body))
 	return string(body), err
 }
 

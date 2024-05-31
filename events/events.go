@@ -10,15 +10,16 @@ import (
 type EventName string
 
 const (
-	EventGroupMsg   EventName = "group"
-	EventPrivateMsg EventName = "private"
-	EventSetAdmin   EventName = "set"
-	EventUnSetAdmin EventName = "unset"
-	EventInvite     EventName = "invite"
-	EventApprove    EventName = "approve"
-	EventKick       EventName = "kick"
-	EventKickMe     EventName = "kick_me"
-	EventLeave      EventName = "leave"
+	EventGroupMsg    EventName = "group"
+	EventPrivateMsg  EventName = "private"
+	EventSetAdmin    EventName = "set"
+	EventUnSetAdmin  EventName = "unset"
+	EventInvite      EventName = "invite"
+	EventApprove     EventName = "approve"
+	EventKick        EventName = "kick"
+	EventKickMe      EventName = "kick_me"
+	EventLeave       EventName = "leave"
+	EventGroupReCall EventName = "group_recall"
 )
 
 type PostType string
@@ -51,6 +52,7 @@ type IEventNotice interface {
 	ParseInvite() IInvite
 	ParseKick() IKick
 	ParseLeave() IKick
+	ParseGroupReCall() IGroupReCall
 }
 
 type IEVentStatus interface {
@@ -73,6 +75,9 @@ func New(data []byte) (*Event, []byte, string, error) {
 	case string(NOTICE):
 		err = json.Unmarshal(data, &event.EventNoticeStruct)
 		ok = event.EventNoticeStruct.GetSubType()
+		if ok == "" {
+			ok = event.EventNoticeStruct.GetNoticeType()
+		}
 	case string(REQUEST):
 		ok = event.EventNoticeStruct.GetSubType()
 	case string(METAEVENT):
@@ -93,9 +98,10 @@ type Event struct {
 }
 
 type EventStruct struct {
-	Time     int64  `json:"time"`
-	SelfID   int64  `json:"self_id"`
-	PostType string `json:"post_type"`
+	Time      int64  `json:"time"`
+	SelfID    int64  `json:"self_id"`
+	PostType  string `json:"post_type"`
+	CurrentQQ int64  `json:"current_qq"`
 }
 
 /**
@@ -131,6 +137,10 @@ func (e *Event) ParseKick() IKick {
 }
 
 func (e *Event) ParseLeave() IKick {
+	return &e.EventNoticeStruct
+}
+
+func (e *Event) ParseGroupReCall() IGroupReCall {
 	return &e.EventNoticeStruct
 }
 
@@ -171,4 +181,7 @@ func (e *EventStruct) GetSelfID() int64 {
 }
 func (e *EventStruct) GetPostType() string {
 	return e.PostType
+}
+func (e *EventStruct) GetCurrentQQ() int64 {
+	return e.CurrentQQ
 }
