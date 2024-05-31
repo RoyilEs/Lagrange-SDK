@@ -1,6 +1,8 @@
 package apiBuilder
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type Status struct {
 	Status        string          `json:"status"`
@@ -26,6 +28,31 @@ type Data struct {
 	Role         string `json:"role,omitempty"`
 	UnFriendly   bool   `json:"unfriendly,omitempty"`
 	Title        string `json:"title,omitempty"`
+	Time         int64  `json:"time,omitempty"`
+	MessageType  string `json:"message_type,omitempty"`
+	RealID       int64  `json:"real_id,omitempty"`
+	Sender       struct {
+		UserID   int64  `json:"user_id,omitempty"`
+		NickName string `json:"nickname,omitempty"`
+		Card     string `json:"card,omitempty"`
+		Sex      string `json:"sex,omitempty"`
+		Age      int    `json:"age,omitempty"`
+		Area     string `json:"area,omitempty"`
+		Level    string `json:"level,omitempty"`
+		Role     string `json:"role,omitempty"`
+		Title    string `json:"title,omitempty"`
+	} `json:"sender,omitempty"`
+	Message []struct {
+		Type string `json:"type"`
+		Data struct {
+			Text string `json:"text,omitempty"`
+			File string `json:"file,omitempty"`
+			Url  string `json:"url,omitempty"`
+			Data string `json:"data,omitempty"`
+			QQ   string `json:"qq,omitempty"`
+			ID   string `json:"id,omitempty"`
+		}
+	} `json:"message,omitempty"`
 }
 
 type Response struct {
