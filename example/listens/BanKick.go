@@ -4,6 +4,7 @@ import (
 	"Lagrange-SDK/apiBuilder"
 	"Lagrange-SDK/events"
 	"Lagrange-SDK/global"
+	"Lagrange-SDK/utils"
 	"context"
 	"fmt"
 	"github.com/charmbracelet/log"
@@ -19,6 +20,11 @@ func BanKick(ctx context.Context, event events.IEvent) {
 	text := groupMsg.ParseTextMsg().GetText()
 
 	if text[0] == "mute " {
+
+		if !utils.IsAdmins(groupMsg.GetUserID(), global.AdminList) {
+			return
+		}
+
 		atoi, err := strconv.Atoi(strings.TrimSpace(text[2]))
 		if err != nil {
 			apiBuilder.New(global.BotUrl).SendGroupMsg(groupMsg.GetGroupID()).TextMsg("请输入数字1").Do(ctx)
@@ -37,6 +43,11 @@ func BanKick(ctx context.Context, event events.IEvent) {
 
 	if text[0] == "kick " {
 		fmt.Println(text)
+
+		if !utils.IsAdmins(groupMsg.GetUserID(), global.AdminList) {
+			return
+		}
+
 		atQQ := groupMsg.ParseTextMsg().GetAtQQ()
 		i, err := strconv.ParseInt(atQQ[0], 10, 64)
 		if err != nil {

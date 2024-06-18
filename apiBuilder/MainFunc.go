@@ -8,6 +8,7 @@ const (
 	GetGroupMemberInfo  ApiName = "get_group_member_info"
 	GetLoginInfo        ApiName = "get_login_info"
 	GetMsg              ApiName = "get_msg"
+	GetStrangerInfo     ApiName = "get_stranger_info"
 	SetGroupKick        ApiName = "set_group_kick"
 	SetGroupBan         ApiName = "set_group_ban"
 	SendGroupMsg        ApiName = "send_group_msg"
@@ -22,6 +23,7 @@ type IMainFuncApi interface {
 	GetGroupMemberInfo() IGroupMemberInfo
 	GetLoginInfo(ctx context.Context) LoginInfoStruct
 	GetMsg(ctx context.Context, msgID int64) MsgStruct
+	GetStrangerInfo(ctx context.Context, userID int64) StrangerInfoStruct
 	SetGroupBan() ISetGroupBan
 	SetGroupKick() ISetGroupKick
 	MarkDownBuild(name string, uin int64) IMarkDownBuild

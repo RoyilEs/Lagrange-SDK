@@ -1,7 +1,6 @@
 package apiBuilder
 
 import (
-	"Lagrange-SDK/events"
 	"Lagrange-SDK/message"
 	"context"
 	"errors"
@@ -39,27 +38,6 @@ type IMsg interface {
 type MessageStruct struct {
 	Type string      `json:"type"`
 	Data DataMessage `json:"data"`
-}
-
-func (m MessageStruct) ResolverToEventMessageData() events.MessageData {
-	return events.MessageData{
-		Type: m.Type,
-		Data: struct {
-			Text string `json:"text,omitempty"`
-			File string `json:"file,omitempty"`
-			Data string `json:"data,omitempty"`
-			Url  string `json:"url,omitempty"`
-			QQ   string `json:"qq,omitempty"`
-			ID   string `json:"id,omitempty"`
-		}{
-			Text: m.Data.Text,
-			File: m.Data.File,
-			Data: m.Data.Data,
-			Url:  m.Data.Url,
-			QQ:   m.Data.QQ,
-			ID:   m.Data.ID,
-		},
-	}
 }
 
 type DataMessage struct {
