@@ -4,6 +4,7 @@ import (
 	"Lagrange-SDK/errors"
 	"Lagrange-SDK/events"
 	"github.com/rotisserie/eris"
+	"net/http"
 	"net/url"
 	"runtime/debug"
 	"time"
@@ -23,11 +24,13 @@ type Core struct {
 	lock                      sync.RWMutex
 	err                       error
 	Client                    *websocket.Conn
+	Header                    http.Header
 	handlePanic               func(any)
 	retryCount, MaxRetryCount int
 	apibase                   string
 	BotQQ                     *int64
 	groupQQ                   *int64
+	token                     string
 
 	done chan struct{}
 }
@@ -85,7 +88,9 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 		}
 	}()
 	var err error
-	c.Client, _, err = websocket.DefaultDialer.DialContext(ctx, "ws://"+c.ApiUrl.Host+"/ws", nil)
+	c.Header = make(http.Header)
+	c.Header.Set("Authorization", "Bearer "+c.token)
+	c.Client, _, err = websocket.DefaultDialer.DialContext(ctx, "ws://"+c.ApiUrl.Host+"/ws", c.Header)
 	if err != nil {
 		return err
 	}
@@ -144,7 +149,7 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 	return c.err
 }
 
-func NewCore(api string, botQQ int64, opt ...CoreOpt) (*Core, error) {
+func NewCore(api string, botQQ int64, accessToken string, opt ...CoreOpt) (*Core, error) {
 	u, _ := url.Parse(api)
 	c := &Core{
 		ApiUrl:        u,
@@ -152,6 +157,7 @@ func NewCore(api string, botQQ int64, opt ...CoreOpt) (*Core, error) {
 		events:        make(map[string][]events.EventCallbackFunc),
 		lock:          sync.RWMutex{},
 		done:          nil,
+		token:         accessToken,
 		BotQQ:         &botQQ,
 		MaxRetryCount: 10,
 	}
