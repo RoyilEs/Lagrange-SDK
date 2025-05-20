@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -100,4 +102,36 @@ func (c *HTTPClient) DoPostJSON(path string, data interface{}) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+// DoPostFormData 发起一个POST请求，body为form-data格式
+func (c *HTTPClient) DoPostFormData(path string, data url.Values) ([]byte, error) {
+	// 将数据转换为form-data格式
+	formData := data.Encode()
+	body := strings.NewReader(formData)
+
+	req, err := http.NewRequest(http.MethodPost, c.BaseURL+path, body)
+	if err != nil {
+		return nil, err
+	}
+
+	// 设置Content-Type
+	req.Header = c.HeaderMap.Clone()
+
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode >= 400 {
+		return bodyBytes, fmt.Errorf("HTTP POST request failed with status code %d", resp.StatusCode)
+	}
+
+	return bodyBytes, nil
 }

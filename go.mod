@@ -1,6 +1,8 @@
 module Lagrange-SDK
 
-go 1.22.0
+go 1.22.9
+
+toolchain go1.23.1
 
 require (
 	github.com/charmbracelet/log v0.3.1
@@ -12,6 +14,7 @@ require (
 )
 
 require (
+	github.com/RoyilEs/asiatz v0.0.0-20241128115053-dd56fdf955ac // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/lipgloss v0.9.1 // indirect

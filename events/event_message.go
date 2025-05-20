@@ -1,22 +1,33 @@
 package events
 
-import (
-	"strconv"
+import "strconv"
+
+const (
+	EventGroupMsg   EventName = "group"
+	EventPrivateMsg EventName = "private"
 )
 
-type IPrivateMsg interface {
+type ICommonMsg interface {
+	GetMessageType() string
+	GetMessageSubType() string
+	GetMsgMessageID() int64
+	GetMsgUserID() int64
+	GetEventMessageStruct() EventMessageStruct
+}
+
+type IPrivateMessage interface {
 	IPrivateSender
 	ParseTextMsg() IMessage
-	GetUserID() int64
+	GetMsgUserID() int64
 }
 
 type IPrivateSender interface {
-	GetUserID() int64
+	GetSenderUserID() int64
 	GetNickName() string
 	GetSex() string
 }
 
-type IGroupMsg interface {
+type IGroupMessage interface {
 	IGroupSender
 	ParseTextMsg() IMessage
 	GetGroupID() int64
@@ -45,14 +56,6 @@ type IMessage interface {
 	GetAtQQ() []string
 }
 
-type ICommonMsg interface {
-	GetMessageType() string
-	GetMessageSubType() string
-	GetMessageID() int64
-	GetUserID() int64
-	GetEventMessageStruct() EventMessageStruct
-}
-
 type EventMessageStruct struct {
 	MessageType string         `json:"message_type,omitempty"`
 	SubType     string         `json:"sub_type,omitempty"`
@@ -64,7 +67,7 @@ type EventMessageStruct struct {
 	RawMessage  string         `json:"raw_message,omitempty"`
 	Font        int            `json:"font,omitempty"`
 	Sender      *Sender        `json:"sender,omitempty"`
-	EventStruct
+	EventStatus
 }
 
 type MessageData struct {
@@ -90,14 +93,15 @@ type Sender struct {
 	Title    string `json:"title,omitempty"`
 }
 
+func (e *Event) GetMessageType() string {
+	return e.EventMessageStruct.MessageType
+}
+
 func (e *Event) GetMessageSubType() string {
 	return e.EventMessageStruct.SubType
 }
 
-func (e *Event) GetMessageType() string {
-	return e.EventMessageStruct.MessageType
-}
-func (e *Event) GetMessageID() int64 {
+func (e *Event) GetMsgMessageID() int64 {
 	return e.EventMessageStruct.MessageID
 }
 
@@ -105,7 +109,7 @@ func (e *Event) GetEventMessageStruct() EventMessageStruct {
 	return e.EventMessageStruct
 }
 
-func (e *Event) GetUserID() int64 {
+func (e *Event) GetMsgUserID() int64 {
 	return e.EventMessageStruct.UserID
 }
 
@@ -122,6 +126,10 @@ func (e *Event) GetCard() string {
 		return e.EventMessageStruct.Sender.NickName
 	}
 	return e.EventMessageStruct.Sender.Card
+}
+
+func (e *Event) GetSenderUserID() int64 {
+	return e.EventMessageStruct.Sender.UserID
 }
 
 func (e *Event) GetAge() int {
@@ -153,7 +161,9 @@ func (e *Event) GetGroupID() int64 {
 }
 
 func (e *Event) IsFromBot(botQQ int64) (flag bool) {
-	if e.EventMessageStruct.Sender.UserID == botQQ || e.EventNoticeStruct.UserID == botQQ {
+	//  || e.EventNoticeStruct.UserID == botQQ
+	// 监听事件暂无
+	if e.EventMessageStruct.Sender.UserID == botQQ {
 		flag = true
 	}
 	return flag
@@ -169,6 +179,9 @@ func (e *Event) AtBot(botQQ int64) (at bool) {
 	return at
 }
 
+/** IMessage 接口实现
+ *
+ */
 func (e *EventMessageStruct) GetType() []string {
 	var msgText []string
 	for _, v := range *e.Message {

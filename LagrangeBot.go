@@ -89,7 +89,6 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 	}()
 	var err error
 	c.Header = make(http.Header)
-	c.Header.Set("Authorization", "Bearer "+c.token)
 	c.Client, _, err = websocket.DefaultDialer.DialContext(ctx, "ws://"+c.ApiUrl.Host+"/ws", c.Header)
 	if err != nil {
 		return err
@@ -149,15 +148,15 @@ func (c *Core) ListenAndWait(ctx context.Context) (e error) {
 	return c.err
 }
 
-func NewCore(api string, botQQ int64, accessToken string, opt ...CoreOpt) (*Core, error) {
+func NewCore(api string, botQQ int64, opt ...CoreOpt) (*Core, error) {
 	u, _ := url.Parse(api)
 	c := &Core{
-		ApiUrl:        u,
-		apibase:       api,
-		events:        make(map[string][]events.EventCallbackFunc),
-		lock:          sync.RWMutex{},
-		done:          nil,
-		token:         accessToken,
+		ApiUrl:  u,
+		apibase: api,
+		events:  make(map[string][]events.EventCallbackFunc),
+		lock:    sync.RWMutex{},
+		done:    nil,
+		//token:         accessToken,
 		BotQQ:         &botQQ,
 		MaxRetryCount: 10,
 	}
