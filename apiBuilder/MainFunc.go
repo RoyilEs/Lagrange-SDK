@@ -14,6 +14,7 @@ const (
 	SendGroupMsg        ApiName = "send_group_msg"
 	SendPrivateMsg      ApiName = "send_private_msg"
 	SendGroupForwardMsg ApiName = "send_group_forward_msg"
+	GroupPoke           ApiName = "group_poke"
 )
 
 type IMainFuncApi interface {
@@ -26,5 +27,6 @@ type IMainFuncApi interface {
 	GetStrangerInfo(ctx context.Context, userID int64) StrangerInfoStruct
 	SetGroupBan() ISetGroupBan
 	SetGroupKick() ISetGroupKick
+	Poke() IGroupPoke
 	MarkDownBuild(name string, uin int64) IMarkDownBuild
 }

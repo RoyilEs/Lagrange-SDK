@@ -17,6 +17,7 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -195,6 +196,17 @@ func main() {
 					TextMsg(fmt.Sprintf("pid: %v, title: %v, url: %v", pid, title, url)).ImgBase64Msg(encodeToBase64).Do(ctx)
 				log.Info("已发送")
 			}
+		}
+	})
+	core.On(events.EventGroupMsg, func(ctx context.Context, event events.IEvent) {
+		msg := event.Message().ParseGroupMsg()
+		text := msg.ParseTextMsg().GetText()
+		fmt.Println(msg.ParseTextMsg().GetTextData())
+		qq := msg.ParseTextMsg().GetAtQQ()
+		fmt.Println(qq)
+		if text[0] == "poke " {
+			atoi, _ := strconv.Atoi(qq[0])
+			apiBuilder.New(global.BotUrl).Poke().SetGroupPoke(msg.GetGroupID(), int64(atoi)).Do(ctx)
 		}
 	})
 	err = core.ListenAndWait(context.Background())

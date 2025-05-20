@@ -46,6 +46,7 @@ type IGroupSender interface {
 }
 
 type IMessage interface {
+	GetTextData() []MessageData
 	GetType() []string
 	GetText() []string
 	GetFile() []string
@@ -188,6 +189,10 @@ func (e *EventMessageStruct) GetType() []string {
 		msgText = append(msgText, v.Data.Text)
 	}
 	return msgText
+}
+
+func (e *EventMessageStruct) GetTextData() []MessageData {
+	return *e.Message
 }
 
 func (e *EventMessageStruct) GetText() []string {
